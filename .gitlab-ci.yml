@@ -2,8 +2,8 @@ stages: [build, deploy]
 
 variables:
   FRONT_DST: "/var/www/petshop-frontend"
-  GIT_CLEAN_FLAGS: "-ffdx -e node_modules" 
-  
+  BUILD_IMAGE: "petshop-frontend-build:$CI_COMMIT_SHORT_SHA"
+
 build_front:
   stage: build
   tags: [oracle]
@@ -12,7 +12,19 @@ build_front:
     - if: '$CI_COMMIT_BRANCH == "gitlab"'
     - if: '$CI_COMMIT_BRANCH == "devops"'
   script:
-    - docker buildx build --target build --output type=local,dest=dist .
+    - export HOME="$CI_PROJECT_DIR/.home"; mkdir -p "$HOME"
+    - export DOCKER_CONFIG="$CI_PROJECT_DIR/.docker"; mkdir -p "$DOCKER_CONFIG"
+
+    - docker build --target build -t "$BUILD_IMAGE" .
+
+    - export HOST_UID=$(id -u) HOST_GID=$(id -g)
+    - rm -rf dist && mkdir -p dist
+    - >
+      docker run --rm
+      -u $HOST_UID:$HOST_GID
+      -v "$CI_PROJECT_DIR/dist":/out
+      "$BUILD_IMAGE"
+      sh -lc 'cp -a /app/dist/. /out/'
 
   artifacts:
     paths: [dist]
