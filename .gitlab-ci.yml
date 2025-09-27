@@ -3,7 +3,8 @@ stages: [build, deploy]
 variables:
   FRONT_DST: "/var/www/petshop-frontend"
   BUILD_IMAGE: "petshop-frontend-build:$CI_COMMIT_SHORT_SHA"
-
+  GIT_CLEAN_FLAGS: "-ffdx -e node_modules"   
+  
 build_front:
   stage: build
   tags: [oracle]
@@ -12,13 +13,18 @@ build_front:
     - if: '$CI_COMMIT_BRANCH == "gitlab"'
     - if: '$CI_COMMIT_BRANCH == "devops"'
   script:
-    - export HOST_UID=$(id -u) HOST_GID=$(id -g)
     - >
-      docker run --rm -v "$CI_PROJECT_DIR":/work alpine:3.20
-      sh -lc "rm -rf /work/node_modules || true; chown -R $HOST_UID:$HOST_GID /work || true"
+      docker run --rm -v "$CI_PROJECT_DIR":/w busybox
+      sh -c '
+        if [ -d /w/node_modules ]; then
+          chmod -R u+w /w/node_modules 2>/dev/null || true;
+          rm -rf /w/node_modules 2>/dev/null || true;
+        fi
+      '
 
     - docker build --target build -t "$BUILD_IMAGE" .
 
+    - export HOST_UID=$(id -u) HOST_GID=$(id -g)
     - mkdir -p dist
     - >
       docker run --rm
