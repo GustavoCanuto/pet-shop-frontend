@@ -2,6 +2,7 @@ stages: [build, deploy]
 
 variables:
   FRONT_DST: "/var/www/petshop-frontend"
+  BUILD_IMAGE: "petshop-frontend-build:$CI_COMMIT_SHORT_SHA"
 
 build_front:
   stage: build
@@ -11,27 +12,15 @@ build_front:
     - if: '$CI_COMMIT_BRANCH == "gitlab"'
     - if: '$CI_COMMIT_BRANCH == "devops"'
   script:
+    - docker build --target build -t "$BUILD_IMAGE" .
     - export HOST_UID=$(id -u) HOST_GID=$(id -g)
+    - mkdir -p dist
     - >
       docker run --rm
       -u $HOST_UID:$HOST_GID
-      -e HOME=/tmp
-      -e npm_config_cache=/tmp/npm-cache
-      -e EXPO_NO_TELEMETRY=1
-      -e NODE_ENV=production
-      -e CI=1
-      -v "$CI_PROJECT_DIR":/app -w /app $DOCKER_NODE_IMAGE
-      sh -lc '
-        set -e; mkdir -p /tmp/npm-cache;
-        if [ -f package-lock.json ]; then
-          npm ci --no-audit --fund=false;
-        else
-          npm i --no-audit --fund=false;
-        fi;
-        # igual ao seu Dockerfile: React 18 apenas para o build web
-        npm i --no-save react@18 react-dom@18;
-        npx expo export --platform web --output-dir dist;
-      '
+      -v "$CI_PROJECT_DIR/dist":/out
+      "$BUILD_IMAGE"
+      sh -lc 'cp -a /app/dist/. /out/'
   artifacts:
     paths: [dist]
     expire_in: 1 week
