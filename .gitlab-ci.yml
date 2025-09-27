@@ -12,9 +12,13 @@ build_front:
     - if: '$CI_COMMIT_BRANCH == "devops"'
   script:
     - docker run --rm -v "$CI_PROJECT_DIR":/app -w /app node:20-alpine sh -lc '
-        set -e
-        if [ -f package-lock.json ]; then npm ci --no-audit --fund=false; else npm i --no-audit --fund=false; fi
-        NODE_ENV=production npx vite build
+        set -e;
+        if [ -f package-lock.json ]; then
+          npm ci --no-audit --fund=false;
+        else
+          npm i --no-audit --fund=false;
+        fi;
+        NODE_ENV=production npx vite build;
       '
   artifacts:
     paths: [dist]
