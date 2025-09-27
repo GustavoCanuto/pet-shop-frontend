@@ -1,8 +1,8 @@
 import { Platform } from "react-native";
 
-const LOCAL_IP = "192.168.15.4"; // troque pelo seu IP da máquina
+const LOCAL_IP = "144.22.203.109"; // troque pelo seu IP da máquina
 
-export const API_URL =  `http://${LOCAL_IP}:8000/api`;
+export const API_URL =  `http://${LOCAL_IP}/api`;
 
 export async function getPets() {
   const res = await fetch(`${API_URL}/pets`);
