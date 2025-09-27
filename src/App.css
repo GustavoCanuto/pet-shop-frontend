@@ -3,3 +3,15 @@ html, body, #root {
   padding: 0;
   height: 100%;
 }
+
+/* web scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #494d50;
+  border-radius: 4px;
+}
