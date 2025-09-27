@@ -11,20 +11,24 @@ build_front:
     - if: '$CI_COMMIT_BRANCH == "gitlab"'
     - if: '$CI_COMMIT_BRANCH == "devops"'
   script:
+    - export HOST_UID=$(id -u) HOST_GID=$(id -g)
     - >
       docker run --rm
+      -u $HOST_UID:$HOST_GID
+      -e HOME=/tmp
+      -e npm_config_cache=/tmp/npm-cache
       -e EXPO_NO_TELEMETRY=1
       -e NODE_ENV=production
       -e CI=1
-      -v "$CI_PROJECT_DIR":/app -w /app node:20-alpine
+      -v "$CI_PROJECT_DIR":/app -w /app $DOCKER_NODE_IMAGE
       sh -lc '
-        set -e;
+        set -e; mkdir -p /tmp/npm-cache;
         if [ -f package-lock.json ]; then
           npm ci --no-audit --fund=false;
         else
           npm i --no-audit --fund=false;
         fi;
-        # Alinha com seu Dockerfile: React 18 só para o build
+        # igual ao seu Dockerfile: React 18 apenas para o build web
         npm i --no-save react@18 react-dom@18;
         npx expo export --platform web --output-dir dist;
       '
