@@ -1,0 +1,7 @@
+.git
+node_modules
+dist
+.expo
+.env
+.env.*
+docker-compose*.yml
