@@ -12,8 +12,13 @@ build_front:
     - if: '$CI_COMMIT_BRANCH == "gitlab"'
     - if: '$CI_COMMIT_BRANCH == "devops"'
   script:
-    - docker build --target build -t "$BUILD_IMAGE" .
     - export HOST_UID=$(id -u) HOST_GID=$(id -g)
+    - >
+      docker run --rm -v "$CI_PROJECT_DIR":/work alpine:3.20
+      sh -lc "rm -rf /work/node_modules || true; chown -R $HOST_UID:$HOST_GID /work || true"
+
+    - docker build --target build -t "$BUILD_IMAGE" .
+
     - mkdir -p dist
     - >
       docker run --rm
@@ -21,6 +26,7 @@ build_front:
       -v "$CI_PROJECT_DIR/dist":/out
       "$BUILD_IMAGE"
       sh -lc 'cp -a /app/dist/. /out/'
+
   artifacts:
     paths: [dist]
     expire_in: 1 week
