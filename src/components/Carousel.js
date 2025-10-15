@@ -1,8 +1,6 @@
-// src/components/Carousel.js
 import { View, Text, StyleSheet } from "react-native";
 
 export default function Carousel() {
-  // Placeholder simples; depois você pode adicionar imagens, etc.
   return (
     <View style={styles.carousel}>
       <Text style={styles.text}>🐶 Bem-vindo ao Pet Shop!</Text>

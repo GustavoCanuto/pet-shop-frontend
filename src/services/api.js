@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 
-const LOCAL_IP = "144.22.203.109"; // troque pelo seu IP da máquina
+const LOCAL_IP = "192.168.15.1"; // troque pelo seu IP da máquina
 
 export const API_URL =  `http://${LOCAL_IP}/api`;
 

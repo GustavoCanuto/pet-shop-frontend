@@ -1,59 +1,57 @@
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { useState } from "react";
+import { View, StyleSheet } from "react-native";
 import Header from "../components/Header";
 import Carousel from "../components/Carousel";
+import LoginModal from "./LoginModal";
+import ConsultaScreen from "./ConsultaScreen";
 
-export default function HomeScreen({ navigation }) {
-  const isWeb = Platform.OS === "web";
+export default function HomeScreen() {
+  const [isLogged, setIsLogged] = useState(false);
+  const [loginModalVisible, setLoginModalVisible] = useState(false);
+
+  const handleLoginSuccess = () => {
+    setIsLogged(true);
+    setLoginModalVisible(false);
+  };
+
+  const handleLogout = () => setIsLogged(false);
+
+  if (isLogged) {
+    return (
+      <>
+        <Header isLogged={true} onLogoutPress={handleLogout} />
+        <ConsultaScreen onLogout={handleLogout} />
+      </>
+    );
+  }
 
   return (
-    <View style={{ flex: 1 }}>
-      {isWeb && <Header />}
-      <View style={isWeb ? styles.webContainer : styles.mobileContainer}>
-        {isWeb ? (
-          <Carousel />
-        ) : (
-          <>
-            <TouchableOpacity
-              style={styles.mobileButton}
-              onPress={() => navigation.navigate("CadastrarPet")}
-            >
-              <Text style={styles.buttonText}>Cadastrar Pet</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.mobileButton}
-              onPress={() => navigation.navigate("ListarPets")}
-            >
-              <Text style={styles.buttonText}>Listar Pets</Text>
-            </TouchableOpacity>
-          </>
-        )}
+    <View style={styles.container}>
+      <Header
+        isLogged={false}
+        onLoginPress={() => setLoginModalVisible(true)}
+      />
+      <View style={styles.content}>
+        <Carousel />
       </View>
+
+      <LoginModal
+        visible={loginModalVisible}
+        onClose={() => setLoginModalVisible(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  webContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: "#121212",
+  },
+  content: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#121212",
-    paddingTop: 100,
-    overflowY: "auto", // scroll web
   },
-  mobileContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#121212",
-    padding: 20,
-  },
-  mobileButton: {
-    backgroundColor: "#1e88e5",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    marginBottom: 15,
-  },
-  buttonText: { color: "#fff", fontSize: 18, fontWeight: "600", textAlign: "center" },
 });
